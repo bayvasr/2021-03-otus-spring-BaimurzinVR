@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="testQuestionDao" class="ru.otus.vbaymurzin.dao.TestQuestionDaoCSV">
+        <constructor-arg name="csvResource" value="classpath:testDB.csv"/>
+    </bean>
+
+    <bean id="testQuestionService" class="ru.otus.vbaymurzin.service.TestQuestionServiceImpl">
+        <constructor-arg name="dao" ref="testQuestionDao"/>
+    </bean>
+
+</beans>
