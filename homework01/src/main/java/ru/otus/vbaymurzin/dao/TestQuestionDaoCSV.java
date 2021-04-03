@@ -10,24 +10,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
+// бин определим в конфигурацонном классе, причина описана там
 public class TestQuestionDaoCSV implements TestQuestionDao {
 
     private static final String COMMA_DELIMITER = ",";
     private static final String SEMICOLON_DELIMITER = ";";
     private final List<TestQuestion> testQuestions = new ArrayList<>(0);
 
-    public TestQuestionDaoCSV(Resource csvResource) throws InvalidCSVResourceException {
+    public TestQuestionDaoCSV(Resource csvResource) {
         if (csvResource == null) {
             throw new InvalidCSVResourceException("Error get resource: resource is null");
         }
         loadTestQuestions(csvResource);
     }
 
-    private void loadTestQuestions(Resource csvResource) throws InvalidCSVResourceException {
+    private void loadTestQuestions(Resource csvResource) {
         try {
             InputStream inputStream = csvResource.getInputStream();
-            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name());) {
+            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
                 while (scanner.hasNextLine()) {
                     testQuestions.add(getTestQuestionFromLine(scanner.nextLine()));
                 }
@@ -38,13 +40,13 @@ public class TestQuestionDaoCSV implements TestQuestionDao {
 
     }
 
-    private TestQuestion getTestQuestionFromLine(String nextLine) throws InvalidCSVResourceException {
+    private TestQuestion getTestQuestionFromLine(String nextLine) {
         String[] fields = nextLine.split(SEMICOLON_DELIMITER);
         if (fields.length != 3) {
             throw new InvalidCSVResourceException("Invalid csv file, there must be three columns, but there are " + fields.length);
         }
         String[] answers = fields[1].split(COMMA_DELIMITER);
-        int correctAnswerIndex = 0;
+        int correctAnswerIndex;
         try {
             correctAnswerIndex = Integer.parseInt(fields[2]);
         } catch (NumberFormatException e) {
@@ -52,7 +54,7 @@ public class TestQuestionDaoCSV implements TestQuestionDao {
         }
         return TestQuestion.builder()
                 .question(fields[0])
-                .answers(Arrays.asList(answers))
+                .answers(Arrays.stream(answers).map(String::trim).collect(Collectors.toList()))
                 .correctAnswerIndex(correctAnswerIndex)
                 .build();
     }
