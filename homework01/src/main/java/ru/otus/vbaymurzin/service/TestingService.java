@@ -1,8 +1,8 @@
 package ru.otus.vbaymurzin.service;
 
-import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Scanner;
 
 public interface TestingService {
-    void startTesting(InputStream inputStream, PrintStream printStream);
+    void startTesting(Scanner inputScanner, PrintStream printStream);
 }

@@ -4,6 +4,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.ComponentScan;
 import ru.otus.vbaymurzin.service.TestingService;
 
+import java.util.Scanner;
+
 @ComponentScan
 public class Main {
 
@@ -12,6 +14,6 @@ public class Main {
 
         TestingService service = context.getBean(TestingService.class);
 
-        service.startTesting(System.in, System.out);
+        service.startTesting(new Scanner(System.in), System.out);
     }
 }

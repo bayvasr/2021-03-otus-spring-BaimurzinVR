@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.otus.vbaymurzin.domain.TestQuestion;
 
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,14 +37,13 @@ public class TestingServiceImpl implements TestingService {
     }
 
     @Override
-    public void startTesting(InputStream inputStream, PrintStream printStream) {
-        Scanner scanner = new Scanner(inputStream);
+    public void startTesting(Scanner inputScanner, PrintStream printStream) {
         printStream.println("Enter your name:");
-        String studentName = scanner.nextLine();
+        String studentName = inputScanner.nextLine();
         printStream.println("Hello, " + studentName + "!");
         printStream.println("Minimum passing test score: " + minScores);
         printStream.print("Press enter to start testing");
-        scanner.nextLine();
+        inputScanner.nextLine();
         AtomicInteger questionNum = new AtomicInteger(0);
         AtomicInteger scores = new AtomicInteger();
         testQuestionService.getTestQuestions().forEach(
@@ -62,12 +60,12 @@ public class TestingServiceImpl implements TestingService {
                     boolean loop = true;
                     while (loop) {
                         printStream.print("Answer number is: ");
-                        loop = !scanner.hasNextInt();
+                        loop = !inputScanner.hasNextInt();
                         if (loop) {
-                            scanner.next();
+                            inputScanner.next();
                             printStream.println("Please, enter number of answer!");
                         } else {
-                            s = scanner.nextInt();
+                            s = inputScanner.nextInt();
                         }
                     }
 
