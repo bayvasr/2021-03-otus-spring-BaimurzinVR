@@ -1,16 +1,19 @@
 package ru.otus.vbaymurzin;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import ru.otus.vbaymurzin.service.TestQuestionService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import ru.otus.vbaymurzin.service.TestingService;
 
+import java.util.Scanner;
+
+@ComponentScan
 public class Main {
 
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
-        TestQuestionService service = context.getBean(TestQuestionService.class);
-        service.getTestQuestions()
-                .forEach(testQuestion -> System.out.println("Question: " + testQuestion.getQuestion() +
-                        "\nAnswer options: " + testQuestion.getAnswers()));
-        context.close();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Main.class);
+
+        TestingService service = context.getBean(TestingService.class);
+
+        service.startTesting(new Scanner(System.in), System.out);
     }
 }
