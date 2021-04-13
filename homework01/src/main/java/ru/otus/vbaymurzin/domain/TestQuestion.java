@@ -15,5 +15,4 @@ public class TestQuestion {
     private final int correctAnswerIndex;
     private final List<String> answers;
 
-
 }
