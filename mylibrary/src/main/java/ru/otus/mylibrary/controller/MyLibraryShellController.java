@@ -1,4 +1,4 @@
-package ru.otus.mylibrary.service;
+package ru.otus.mylibrary.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -13,20 +13,23 @@ import ru.otus.mylibrary.domain.Author;
 import ru.otus.mylibrary.domain.Book;
 import ru.otus.mylibrary.domain.Genre;
 import ru.otus.mylibrary.dto.BookDto;
+import ru.otus.mylibrary.service.AuthorService;
+import ru.otus.mylibrary.service.BookService;
+import ru.otus.mylibrary.service.GenreService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
-public class MyLibraryShell {
+public class MyLibraryShellController {
     private final GenreService genreService;
     private final AuthorService authorService;
     private final BookService bookService;
     private final MessageSource ms;
     private final AppConfig cfg;
 
-    private static final Logger logger = LoggerFactory.getLogger(MyLibraryShell.class);
+    private static final Logger logger = LoggerFactory.getLogger(MyLibraryShellController.class);
 
     @ShellMethod(key = {"books", "b"}, value = "Get the list of all books in library: \"Id\". \"Title\", \"Author\", \"Genre\"")
     public List<String> getAllBooks() {
@@ -48,10 +51,10 @@ public class MyLibraryShell {
         try {
             Genre genre = StringUtils.hasText(genreName) ?
                     genreService.saveGenre(new Genre(genreName)) :
-                    Genre.UNKNOWN_GENRE;
+                    null;
             Author author = StringUtils.hasText(authorName) ?
                     authorService.saveAuthor(new Author(authorName)) :
-                    Author.UNKNOWN_AUTHOR;
+                    null;
             BookDto book = bookService.addBook(new Book(bookTitle, author, genre));
             return ms.getMessage("book.added.successfully", new String[]{book.toString()}, cfg.getLocale());
         } catch (Exception e) {
@@ -68,11 +71,11 @@ public class MyLibraryShell {
         try {
             Genre genre = StringUtils.hasText(genreName) ?
                     genreService.saveGenre(new Genre(genreName)) :
-                    Genre.UNKNOWN_GENRE;
+                    null;
             Author author = StringUtils.hasText(authorName) ?
                     authorService.saveAuthor(new Author(authorName)) :
-                    Author.UNKNOWN_AUTHOR;
-            BookDto book = bookService.saveBook(new Book(bookId, bookTitle, author, genre));
+                    null;
+            BookDto book = bookService.updateBook(new Book(bookId, bookTitle, author, genre));
             return ms.getMessage("book.edited.successfully", new String[]{book.toString()}, cfg.getLocale());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -105,7 +108,7 @@ public class MyLibraryShell {
     public String addAuthor(@ShellOption String authorName) {
         try {
             Author author = authorService.saveAuthor(new Author(authorName));
-            return ms.getMessage("author.added.successfully", new String[]{author.toString()}, cfg.getLocale());
+            return ms.getMessage("author.added.successfully", new String[]{author.getName(), String.valueOf(author.getId())}, cfg.getLocale());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -126,7 +129,7 @@ public class MyLibraryShell {
     public String addGenre(@ShellOption String genreName) {
         try {
             Genre genre = genreService.saveGenre(new Genre(genreName));
-            return ms.getMessage("genre.added.successfully", new String[]{genre.toString()}, cfg.getLocale());
+            return ms.getMessage("genre.added.successfully", new String[]{genre.getName(), String.valueOf(genre.getId())}, cfg.getLocale());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

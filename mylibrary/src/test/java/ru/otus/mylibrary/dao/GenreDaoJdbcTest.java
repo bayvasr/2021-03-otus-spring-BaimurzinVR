@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.otus.mylibrary.domain.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
@@ -34,9 +35,10 @@ class GenreDaoJdbcTest {
     void shouldFindGenre() {
         Genre genre = new Genre("Проза");
         genreDao.insert(genre);
-        Genre foundGenre = genreDao.find(genre).orElse(Genre.UNKNOWN_GENRE);
-        assertThat(foundGenre.getId()).isPositive();
-        assertThat(foundGenre.getName()).isEqualTo(genre.getName());
+        Optional<Genre> foundGenre = genreDao.find(genre);
+        assertThat(foundGenre).isPresent();
+        assertThat(foundGenre.get().getId()).isPositive();
+        assertThat(foundGenre.get().getName()).isEqualTo(genre.getName());
     }
 
     @Test
@@ -58,8 +60,9 @@ class GenreDaoJdbcTest {
     void shouldGetGenreById() {
         Genre expGenre = new Genre("Комедия");
         Genre insGenre = genreDao.insert(expGenre);
-        Genre actGenre = genreDao.getById(insGenre.getId()).orElse(Genre.UNKNOWN_GENRE);
-        assertThat(actGenre.getName()).isEqualTo(expGenre.getName());
+        Optional<Genre> actGenre = genreDao.getById(insGenre.getId());
+        assertThat(actGenre).isPresent();
+        assertThat(actGenre.get().getName()).isEqualTo(expGenre.getName());
     }
 
 }

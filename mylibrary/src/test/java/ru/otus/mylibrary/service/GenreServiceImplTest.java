@@ -8,9 +8,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.mylibrary.dao.GenreDao;
 import ru.otus.mylibrary.domain.Genre;
+import ru.otus.mylibrary.dto.GenreDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -66,7 +69,7 @@ class GenreServiceImplTest {
 
         List<String> actualList = service.getAllGenres();
 
-        assertThat(actualList).containsAll(List.of(genre1.toString(), genre2.toString()));
+        assertThat(actualList).containsAll(Stream.of(genre1, genre2).map(GenreDto::new).map(GenreDto::toString).collect(Collectors.toList()));
     }
 
 }

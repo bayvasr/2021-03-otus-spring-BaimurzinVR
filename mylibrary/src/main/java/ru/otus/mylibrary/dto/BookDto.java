@@ -11,12 +11,12 @@ public class BookDto {
     public BookDto(Book book) {
         this.id = book.getId();
         this.title = book.getTitle();
-        this.author = book.getAuthor().toString();
-        this.genre = book.getGenre().toString();
+        this.author = book.getAuthor() == null ? "неизвестен" : new AuthorDto(book.getAuthor()).toString();
+        this.genre = book.getGenre() == null ? "неизвестен" : new GenreDto(book.getGenre()).toString();
     }
 
     @Override
     public String toString() {
-        return String.format("%d. %s, %s, %s", id, title, author, genre);
+        return String.format("%d. %s, Автор: %s, Жанр: %s", id, title, author, genre);
     }
 }

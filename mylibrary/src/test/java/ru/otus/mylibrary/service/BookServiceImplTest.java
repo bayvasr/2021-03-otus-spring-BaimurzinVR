@@ -13,7 +13,7 @@ import ru.otus.mylibrary.domain.Genre;
 import ru.otus.mylibrary.dto.BookDto;
 import ru.otus.mylibrary.exception.BookServiceAddBookException;
 import ru.otus.mylibrary.exception.BookServiceRemoveBookException;
-import ru.otus.mylibrary.exception.BookServiceSaveBookException;
+import ru.otus.mylibrary.exception.BookServiceUpdateBookException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +64,8 @@ class BookServiceImplTest {
         Book book = new Book(1, "Неоконченное", author, genre);
         BookDto daoInsertedBookDto = new BookDto(book);
 
-        when(bookDao.find(book)).thenReturn(Optional.empty());
-        when(bookDao.insert(book)).thenReturn(book);
+        when(bookDao.existsByExample(book)).thenReturn(false);
+        when(bookDao.insert(book)).thenReturn(Optional.of(book));
 
         BookDto addedDto = service.addBook(book);
 
@@ -79,21 +79,21 @@ class BookServiceImplTest {
         Genre genre = new Genre(1, "Проза");
         Book book = new Book(1, "Неоконченное", author, genre);
 
-        when(bookDao.find(any())).thenReturn(Optional.of(book));
+        when(bookDao.existsByExample(any())).thenReturn(true);
 
         assertThatExceptionOfType(BookServiceAddBookException.class).isThrownBy(() -> service.addBook(book));
     }
 
     @Test
     @DisplayName("сохранять отредактированную книгу")
-    void shouldSaveBook() {
+    void shouldUpdateBook() {
         Author author = new Author(1, "Маяковский В.В.");
         Genre genre = new Genre(1, "Проза");
         Book book = new Book(1, "Неоконченное", author, genre);
         BookDto actualBookDto = new BookDto(book);
 
-        when(bookDao.find(book)).thenReturn(Optional.of(book));
-        BookDto savedBookDto = service.saveBook(book);
+        when(bookDao.getById(book.getId())).thenReturn(Optional.of(book));
+        BookDto savedBookDto = service.updateBook(book);
 
         verify(bookDao, times(1)).update(book);
         assertThat(savedBookDto).usingRecursiveComparison().isEqualTo(actualBookDto);
@@ -101,14 +101,14 @@ class BookServiceImplTest {
 
     @Test
     @DisplayName("выдать ошибку, если редактируемая книга не найдена по идентификатору")
-    void shouldThrowExceptionIfBookToSaveNotFoundById() {
+    void shouldThrowExceptionIfBookToUpdateNotFoundById() {
         Author author = new Author(1, "Маяковский В.В.");
         Genre genre = new Genre(1, "Проза");
         Book book = new Book(1, "Неоконченное", author, genre);
 
-        when(bookDao.find(any())).thenReturn(Optional.empty());
+        when(bookDao.getById(book.getId())).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(BookServiceSaveBookException.class).isThrownBy(() -> service.saveBook(book));
+        assertThatExceptionOfType(BookServiceUpdateBookException.class).isThrownBy(() -> service.updateBook(book));
     }
 
     @Test

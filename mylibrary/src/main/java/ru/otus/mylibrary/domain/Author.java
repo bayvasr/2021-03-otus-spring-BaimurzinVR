@@ -7,8 +7,6 @@ import lombok.Data;
 @Builder
 public class Author {
 
-    public static final Author UNKNOWN_AUTHOR = new Author("Unknown");
-
     private final long id;
     private final String name;
 
@@ -23,8 +21,9 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Автор: " +
-                name + " (Идентификатор " +
-                id + ")";
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

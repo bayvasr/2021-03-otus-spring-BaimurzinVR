@@ -23,6 +23,9 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public List<String> getAllGenres() {
-        return dao.getAll().stream().map(GenreDto::new).map(GenreDto::toString).collect(Collectors.toList());
+        return dao.getAll().stream()
+                .map(GenreDto::new)
+                .map(GenreDto::toString)
+                .collect(Collectors.toList());
     }
 }

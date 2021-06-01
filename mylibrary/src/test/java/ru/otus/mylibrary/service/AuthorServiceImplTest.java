@@ -8,9 +8,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.mylibrary.dao.AuthorDao;
 import ru.otus.mylibrary.domain.Author;
+import ru.otus.mylibrary.dto.AuthorDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -68,6 +71,6 @@ class AuthorServiceImplTest {
 
         List<String> actList = service.getAllAuthors();
 
-        assertThat(actList).containsAll(List.of(author1.toString(), author2.toString()));
+        assertThat(actList).containsAll(Stream.of(author1, author2).map(AuthorDto::new).map(AuthorDto::toString).collect(Collectors.toList()));
     }
 }

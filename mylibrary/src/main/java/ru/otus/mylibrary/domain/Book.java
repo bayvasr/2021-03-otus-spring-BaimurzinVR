@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class Book {
-    public static final Book UNKNOWN_BOOK = new Book(0, "Unknown", Author.UNKNOWN_AUTHOR, Genre.UNKNOWN_GENRE);
 
     private final long id;
     private final String title;
@@ -22,13 +21,21 @@ public class Book {
         this(0, title, author, genre);
     }
 
+    public long getAuthorId() {
+        return author == null ? 0 : author.getId();
+    }
+
+    public long getGenreId() {
+        return genre == null ? 0 : genre.getId();
+    }
 
     @Override
     public String toString() {
-        return "Книга (" +
+        return "Book{" +
                 "id=" + id +
-                ") Название='" + title + '\'' +
-                " Автор=" + author +
-                " Жанр=" + genre;
+                ", title='" + title + '\'' +
+                ", author=" + author +
+                ", genre=" + genre +
+                '}';
     }
 }

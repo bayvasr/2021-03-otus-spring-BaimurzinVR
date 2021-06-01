@@ -5,8 +5,6 @@ import lombok.Data;
 @Data
 public class Genre {
 
-    public static final Genre UNKNOWN_GENRE = new Genre("Unknown");
-
     private final long id;
     private final String name;
 
@@ -21,8 +19,9 @@ public class Genre {
 
     @Override
     public String toString() {
-        return "Жанр: " +
-                name + " (Идентификатор " +
-                id + ")";
+        return "Genre{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

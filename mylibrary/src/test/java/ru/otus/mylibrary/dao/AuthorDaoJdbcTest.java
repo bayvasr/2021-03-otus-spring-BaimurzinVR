@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.otus.mylibrary.domain.Author;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
@@ -17,6 +18,7 @@ import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFO
 @Import(AuthorDaoJdbc.class)
 @DisplayName("Класс AuthorDaoJdbc должен")
 class AuthorDaoJdbcTest {
+
     @Autowired
     private AuthorDao authorDao;
 
@@ -34,8 +36,10 @@ class AuthorDaoJdbcTest {
     void shouldFindAuthor() {
         Author author = new Author("Маяковский В.В.");
         authorDao.insert(author);
-        Author foundAuthor = authorDao.find(author).orElse(Author.UNKNOWN_AUTHOR);
-        assertThat(foundAuthor.getId()).isPositive();
+        Optional<Author> optionalAuthor = authorDao.find(author);
+        assertThat(optionalAuthor).isPresent();
+        assertThat(optionalAuthor.get().getId()).isPositive();
+        assertThat(optionalAuthor.get().getName()).isEqualTo(author.getName());
     }
 
     @Test
@@ -56,7 +60,8 @@ class AuthorDaoJdbcTest {
     void shouldGetAuthorById() {
         Author expAuthor = new Author("Маяковский В.В.");
         Author insAuthor = authorDao.insert(expAuthor);
-        Author getAuthor = authorDao.getById(insAuthor.getId()).orElse(Author.UNKNOWN_AUTHOR);
-        assertThat(getAuthor.getName()).isEqualTo(expAuthor.getName());
+        Optional<Author> authorById = authorDao.getById(insAuthor.getId());
+        assertThat(authorById).isPresent();
+        assertThat(authorById.get().getName()).isEqualTo(expAuthor.getName());
     }
 }

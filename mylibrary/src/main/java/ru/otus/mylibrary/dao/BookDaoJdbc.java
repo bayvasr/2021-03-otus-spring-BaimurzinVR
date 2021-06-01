@@ -20,22 +20,24 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class BookDaoJdbc implements BookDao {
-    private final AuthorDao authorDao;
-    private final GenreDao genreDao;
     private final NamedParameterJdbcOperations jdbc;
 
     @Override
-    public Book insert(Book book) {
+    public Optional<Book> insert(Book book) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("title", book.getTitle());
-        params.addValue("author_id", book.getAuthor().getId());
-        params.addValue("genre_id", book.getGenre().getId());
+        params.addValue("author_id", book.getAuthorId());
+        params.addValue("genre_id", book.getGenreId());
         KeyHolder key = new GeneratedKeyHolder();
         jdbc.update("insert into books(title, author_id, genre_id) " +
                         "values (:title, :author_id, :genre_id)",
                 params,
                 key);
-        return new Book(key.getKey().longValue(), book.getTitle(), book.getAuthor(), book.getGenre());
+        if (key.getKey() != null) {
+            return Optional.of(new Book(key.getKey().longValue(), book.getTitle(), book.getAuthor(), book.getGenre()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -48,8 +50,8 @@ public class BookDaoJdbc implements BookDao {
                 Map.of(
                         "id", book.getId(),
                         "title", book.getTitle(),
-                        "author_id", book.getAuthor().getId(),
-                        "genre_id", book.getGenre().getId()));
+                        "author_id", book.getAuthorId(),
+                        "genre_id", book.getGenreId()));
     }
 
     @Override
@@ -58,7 +60,7 @@ public class BookDaoJdbc implements BookDao {
     }
 
     @Override
-    public Optional<Book> find(Book book) {
+    public Optional<Book> findByExample(Book book) {
         return jdbc.query("select b.id, " +
                         "b.title, " +
                         "a.id as author_id, " +
@@ -72,10 +74,27 @@ public class BookDaoJdbc implements BookDao {
                         "and b.author_id = :author_id " +
                         "and b.genre_id = :genre_id",
                 Map.of("title", book.getTitle(),
-                        "author_id", book.getAuthor().getId(),
-                        "genre_id", book.getGenre().getId()),
+                        "author_id", book.getAuthorId(),
+                        "genre_id", book.getGenreId()),
                 new BookMapper()).stream().findFirst();
     }
+
+    @Override
+    public boolean existsByExample(Book book) {
+        return Optional.ofNullable(jdbc.queryForObject("select count(1)" +
+                        "from books b " +
+                        "left join authors a on a.id = b.author_id " +
+                        "left join genres g on g.id = b.genre_id " +
+                        "where b.title = :title " +
+                        "and b.author_id = :author_id " +
+                        "and b.genre_id = :genre_id",
+                Map.of("title", book.getTitle(),
+                        "author_id", book.getAuthorId(),
+                        "genre_id", book.getGenreId()),
+                Integer.class
+        )).orElse(0) > 0;
+    }
+
 
     @Override
     public Optional<Book> getById(long id) {
@@ -111,11 +130,11 @@ public class BookDaoJdbc implements BookDao {
                     Author.builder()
                             .id(rs.getLong("author_id"))
                             .name(rs.getString("author_name")).build() :
-                    Author.UNKNOWN_AUTHOR;
+                    null;
             Genre genre = rs.getLong("genre_id") > 0 ?
                     new Genre(rs.getLong("genre_id"),
                             rs.getString("genre_name")) :
-                    Genre.UNKNOWN_GENRE;
+                    null;
             return new Book(rs.getLong("id"), rs.getString("title"), author, genre);
         }
     }
