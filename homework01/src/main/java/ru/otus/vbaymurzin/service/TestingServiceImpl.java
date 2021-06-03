@@ -1,23 +1,20 @@
 package ru.otus.vbaymurzin.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.otus.vbaymurzin.config.ApplicationConfiguration;
 import ru.otus.vbaymurzin.domain.TestQuestion;
 
-import java.io.PrintStream;
-import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 public class TestingServiceImpl implements TestingService {
 
-    @Value("${min-scores}")
-    private int minScores;
-
-    private static final int DELIMITER_LINE_CHAR_REPEAT_COUNT = 80;
     private final TestQuestionService testQuestionService;
+    private final TestingTerminalService terminalService;
+    private final LocalizationService localizationService;
+    private final ApplicationConfiguration configuration;
 
 
     private boolean checkAnswer(TestQuestion testQuestion, int answerNum) {
@@ -29,59 +26,41 @@ public class TestingServiceImpl implements TestingService {
         return testQuestion.getAnswers().get(testQuestion.getCorrectAnswerIndex());
     }
 
-    private void testingResult(int scores, PrintStream printStream) {
-        printStream.println("Testing completed!");
-        String result = scores >= minScores ? "Congratulations! You passed the test." : "We sympathize, but you did not pass the test.";
-        printStream.println(result + "You scored points is " + scores);
+    private void testingResult(int scores) {
+        if (scores >= configuration.getMinScores()) {
+            terminalService.printSuccessComplete(scores);
+        } else {
+            terminalService.printFailComplete(scores);
+        }
 
     }
 
     @Override
-    public void startTesting(Scanner inputScanner, PrintStream printStream) {
-        printStream.println("Enter your name:");
-        String studentName = inputScanner.nextLine();
-        printStream.println("Hello, " + studentName + "!");
-        printStream.println("Minimum passing test score: " + minScores);
-        printStream.print("Press enter to start testing");
-        inputScanner.nextLine();
-        AtomicInteger questionNum = new AtomicInteger(0);
+    public void startTesting() {
+        terminalService.chooseLocale();
+        testQuestionService.setLocale(localizationService.getCurrentLocale());
+
+        terminalService.enterStudentName();
+
+        terminalService.printStartTesting(configuration.getMinScores());
+
         AtomicInteger scores = new AtomicInteger();
         testQuestionService.getTestQuestions().forEach(
                 testQuestion ->
                 {
-                    printStream.println(questionNum.incrementAndGet() + ". Question: " + testQuestion.getQuestion() +
-                            "\nSelect answer number:");
-                    StringBuilder stringBuilder = new StringBuilder();
-                    AtomicInteger answerNum = new AtomicInteger(0);
-                    testQuestion.getAnswers().forEach(s -> stringBuilder.append(answerNum.incrementAndGet()).append(". ").append(s).append("\n"));
-                    printStream.println(stringBuilder.toString());
+                    terminalService.printQuestionWithAnswerOptions(testQuestion);
+                    int s = terminalService.chooseNumberOption();
 
-                    int s = -1;
-                    boolean loop = true;
-                    while (loop) {
-                        printStream.print("Answer number is: ");
-                        loop = !inputScanner.hasNextInt();
-                        if (loop) {
-                            inputScanner.next();
-                            printStream.println("Please, enter number of answer!");
-                        } else {
-                            s = inputScanner.nextInt();
-                        }
-                    }
-
-                    printStream.println("-".repeat(DELIMITER_LINE_CHAR_REPEAT_COUNT));
                     if (checkAnswer(testQuestion, s)) {
-                        printStream.println("Yeah, this is the correct answer!");
+                        terminalService.printCorrect();
                         scores.incrementAndGet();
                     } else {
-                        printStream.println("Bad, this is the wrong answer! The correct answer is " +
-                                getCorrectAnswer(testQuestion));
+                        terminalService.printIncorrect(getCorrectAnswer(testQuestion));
                     }
-                    printStream.println("=".repeat(DELIMITER_LINE_CHAR_REPEAT_COUNT) + "\n");
                 }
         );
 
-        testingResult(scores.get(), printStream);
+        testingResult(scores.get());
     }
 
 

@@ -5,6 +5,7 @@ import ru.otus.vbaymurzin.dao.TestQuestionDao;
 import ru.otus.vbaymurzin.domain.TestQuestion;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class TestQuestionServiceImpl implements TestQuestionService {
@@ -17,5 +18,10 @@ public class TestQuestionServiceImpl implements TestQuestionService {
 
     public List<TestQuestion> getTestQuestions() {
         return dao.getTestQuestions();
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        dao.setLocale(locale);
     }
 }

@@ -1,0 +1,4 @@
+application:
+  questions-csv-file-name: testDB.csv
+  default-language: ru-RU
+  min-scores: 3
