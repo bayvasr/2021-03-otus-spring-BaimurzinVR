@@ -1,11 +1,11 @@
 package ru.otus.mylibrary.service;
 
-import ru.otus.mylibrary.domain.Genre;
+import ru.otus.mylibrary.dto.GenreDto;
 
 import java.util.List;
 
 public interface GenreService {
-    Genre saveGenre(Genre genre);
+    GenreDto saveGenre(GenreDto genre);
 
     List<String> getAllGenres();
 

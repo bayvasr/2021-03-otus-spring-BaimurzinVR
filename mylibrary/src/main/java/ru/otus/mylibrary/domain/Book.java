@@ -1,33 +1,38 @@
 package ru.otus.mylibrary.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "books")
+@Entity
 public class Book {
 
-    private final long id;
-    private final String title;
-    private final Author author;
-    private final Genre genre;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    @Column(name = "title")
+    private String title;
 
-    public Book(long id, String title, Author author, Genre genre) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.genre = genre;
-    }
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Author.class)
+    @JoinColumn(name = "author_id")
+    private Author author;
 
-    public Book(String title, Author author, Genre genre) {
-        this(0, title, author, genre);
-    }
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Genre.class)
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
 
-    public long getAuthorId() {
-        return author == null ? 0 : author.getId();
-    }
-
-    public long getGenreId() {
-        return genre == null ? 0 : genre.getId();
-    }
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     @Override
     public String toString() {

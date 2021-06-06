@@ -4,3 +4,10 @@ spring:
     initialization-mode: always
     data: data.sql
     sql-script-encoding: UTF-8
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      #ddl-auto: create-drop
+
+    show-sql: true

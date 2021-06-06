@@ -1,22 +1,28 @@
 package ru.otus.mylibrary.dto;
 
-import ru.otus.mylibrary.domain.Book;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Data
+@Builder
 public class BookDto {
     private final long id;
     private final String title;
+    private final long authorId;
     private final String author;
+    private final long genreId;
     private final String genre;
-
-    public BookDto(Book book) {
-        this.id = book.getId();
-        this.title = book.getTitle();
-        this.author = book.getAuthor() == null ? "неизвестен" : new AuthorDto(book.getAuthor()).toString();
-        this.genre = book.getGenre() == null ? "неизвестен" : new GenreDto(book.getGenre()).toString();
-    }
+    @Builder.Default
+    private List<String> comments = new ArrayList<>();
 
     @Override
     public String toString() {
-        return String.format("%d. %s, Автор: %s, Жанр: %s", id, title, author, genre);
+        return String.format("%d. %s, Автор: %s, Жанр: %s, Комментарии: %d",
+                id, title, author, genre, comments.size());
     }
 }

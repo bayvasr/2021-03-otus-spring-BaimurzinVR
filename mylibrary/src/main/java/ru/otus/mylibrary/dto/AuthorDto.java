@@ -1,16 +1,13 @@
 package ru.otus.mylibrary.dto;
 
-import ru.otus.mylibrary.domain.Author;
-import ru.otus.mylibrary.domain.Book;
+import lombok.Builder;
+import lombok.Data;
 
+@Builder
+@Data
 public class AuthorDto {
-    private final long id;
-    private final String name;
-
-    public AuthorDto(Author author) {
-        this.id = author.getId();
-        this.name = author.getName();
-    }
+    private long id;
+    private String name;
 
     @Override
     public String toString() {

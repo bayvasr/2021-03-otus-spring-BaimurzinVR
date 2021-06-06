@@ -1,11 +1,11 @@
 package ru.otus.mylibrary.service;
 
-import ru.otus.mylibrary.domain.Author;
+import ru.otus.mylibrary.dto.AuthorDto;
 
 import java.util.List;
 
 public interface AuthorService {
-    Author saveAuthor(Author author);
+    AuthorDto saveAuthor(AuthorDto author);
 
     List<String> getAllAuthors();
 }

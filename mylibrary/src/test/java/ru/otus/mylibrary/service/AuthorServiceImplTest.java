@@ -6,16 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.otus.mylibrary.dao.AuthorDao;
 import ru.otus.mylibrary.domain.Author;
 import ru.otus.mylibrary.dto.AuthorDto;
+import ru.otus.mylibrary.dto.DtoConverter;
+import ru.otus.mylibrary.dto.converters.AuthorDtoEntityConverterImpl;
+import ru.otus.mylibrary.repositories.AuthorRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,41 +26,43 @@ class AuthorServiceImplTest {
 
     private AuthorService service;
     @Mock
-    private AuthorDao authorDao;
+    private AuthorRepository authorRepository;
+
+    private DtoConverter<AuthorDto, Author> dtoConverter = new AuthorDtoEntityConverterImpl();
 
     @BeforeEach
     void init() {
-        service = new AuthorServiceImpl(authorDao);
+        service = new AuthorServiceImpl(authorRepository, dtoConverter);
     }
 
     @Test
     @DisplayName("добавлять автора, если его нет в БД")
     void shouldAddAuthor() {
 
-        Author author = new Author("Маяковский В.В.");
+        AuthorDto author = AuthorDto.builder().name("Маяковский В.В.").build();
         Author daoInsertReturnAuthor = new Author(1, "Маяковский В.В.");
 
-        when(authorDao.find(author)).thenReturn(Optional.empty());
-        when(authorDao.insert(author)).thenReturn(daoInsertReturnAuthor);
+//        when(authorDao.find(author)).thenReturn(Optional.empty());
+        when(authorRepository.save(any())).thenReturn(daoInsertReturnAuthor);
 
-        Author actAuthor = service.saveAuthor(author);
+        AuthorDto actAuthor = service.saveAuthor(author);
 
         assertThat(actAuthor).usingRecursiveComparison().isEqualTo(daoInsertReturnAuthor);
     }
 
-    @Test
-    @DisplayName("возвращать существующего автора, если он есть в БД")
-    void shouldGetAuthorIfFind() {
-
-        Author author = new Author("Маяковский В.В.");
-        Author daoFindReturnAuthor = new Author(1, "Маяковский В.В.");
-
-        when(authorDao.find(author)).thenReturn(Optional.of(daoFindReturnAuthor));
-
-        Author actAuthor = service.saveAuthor(author);
-
-        assertThat(actAuthor).usingRecursiveComparison().isEqualTo(daoFindReturnAuthor);
-    }
+//    @Test
+//    @DisplayName("возвращать существующего автора, если он есть в БД")
+//    void shouldGetAuthorIfFind() {
+//
+//        Author author = new Author("Маяковский В.В.");
+//        Author daoFindReturnAuthor = new Author(1, "Маяковский В.В.");
+//
+//        when(authorDao.find(author)).thenReturn(Optional.of(daoFindReturnAuthor));
+//
+//        Author actAuthor = service.saveAuthor(author);
+//
+//        assertThat(actAuthor).usingRecursiveComparison().isEqualTo(daoFindReturnAuthor);
+//    }
 
     @Test
     @DisplayName("получать всех авторов")
@@ -67,10 +71,13 @@ class AuthorServiceImplTest {
         Author author2 = new Author(2, "Айзек Азимов");
         List<Author> list = List.of(author1, author2);
 
-        when(authorDao.getAll()).thenReturn(list);
+        when(authorRepository.findAll()).thenReturn(list);
 
         List<String> actList = service.getAllAuthors();
 
-        assertThat(actList).containsAll(Stream.of(author1, author2).map(AuthorDto::new).map(AuthorDto::toString).collect(Collectors.toList()));
+        assertThat(actList).containsAll(Stream.of(author1, author2)
+                .map(dtoConverter::from)
+                .map(AuthorDto::toString)
+                .collect(Collectors.toList()));
     }
 }

@@ -9,25 +9,28 @@ import javax.persistence.*;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "genres")
+@AllArgsConstructor
 @Entity
-public class Genre {
-
+@Table(name = "comments")
+public class Comment {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "text")
+    private String text;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id")
+    private Book book;
 
     @Override
     public String toString() {
-        return "Genre{" +
+        return "Comment{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", text='" + text + '\'' +
                 '}';
     }
 }
