@@ -7,9 +7,7 @@ import ru.otus.mylibrary.domain.Genre;
 import ru.otus.mylibrary.dto.BookDto;
 import ru.otus.mylibrary.dto.DtoConverter;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Component
 public class BookDtoEntityConverterImpl implements DtoConverter<BookDto, Book> {
@@ -22,10 +20,6 @@ public class BookDtoEntityConverterImpl implements DtoConverter<BookDto, Book> {
                 .author(book.getAuthor() == null ? "неизвестен" : book.getAuthor().getName())
                 .genreId(book.getGenre() == null ? 0 : book.getGenre().getId())
                 .genre(book.getGenre() == null ? "неизвестен" : book.getGenre().getName())
-                .comments(book.getComments().stream()
-                        .map(comment -> MessageFormat.format("{0}. {1}", comment.getId(), comment.getText()))
-                        .collect(Collectors.toList())
-                )
                 .build();
     }
 

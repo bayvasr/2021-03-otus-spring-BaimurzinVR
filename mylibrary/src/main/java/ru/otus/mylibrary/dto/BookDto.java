@@ -4,9 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Data
 @Builder
@@ -17,12 +14,10 @@ public class BookDto {
     private final String author;
     private final long genreId;
     private final String genre;
-    @Builder.Default
-    private List<String> comments = new ArrayList<>();
 
     @Override
     public String toString() {
-        return String.format("%d. %s, Автор: %s, Жанр: %s, Комментарии: %d",
-                id, title, author, genre, comments.size());
+        return String.format("%d. %s, Автор: %s, Жанр: %s",
+                id, title, author, genre);
     }
 }

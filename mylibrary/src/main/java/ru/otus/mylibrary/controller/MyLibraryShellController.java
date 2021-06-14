@@ -65,7 +65,6 @@ public class MyLibraryShellController {
                             .author(author.getName())
                             .genreId(genre.getId())
                             .genre(genre.getName())
-                            .comments(new ArrayList<>())
                             .build());
             return ms.getMessage("book.added.successfully", new String[]{book.toString()}, cfg.getLocale());
         } catch (Exception e) {
@@ -205,14 +204,15 @@ public class MyLibraryShellController {
     public List<String> displayBookComments(@ShellOption long bookId) {
         try {
             ArrayList<String> result = new ArrayList<>();
-            BookDto book = bookService.getBook(bookId);
-            result.add(ms.getMessage("comment.display.title",
-                    new String[]{book.getTitle()}, cfg.getLocale()));
-            if (book.getComments().isEmpty()) {
+            List<CommentDto> comments = commentService.getComments(bookId);
+            if (comments.isEmpty()) {
+                BookDto book = bookService.getBook(bookId);
                 result.add(ms.getMessage("comment.display.no.comments",
                         new String[]{book.getTitle()}, cfg.getLocale()));
             } else {
-                result.addAll(book.getComments());
+                result.add(ms.getMessage("comment.display.title",
+                        new String[]{comments.get(0).getBookTitle()}, cfg.getLocale()));
+                result.addAll(comments.stream().map(CommentDto::toString).collect(Collectors.toList()));
             }
             return result;
         } catch (Exception e) {
