@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.persistence.*;
 import java.util.List;
 
@@ -28,17 +29,20 @@ public class Book {
 
     @Fetch(FetchMode.JOIN)
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Author.class)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "author_id")
     private Author author;
 
     @Fetch(FetchMode.JOIN)
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Genre.class)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
     @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size = 10)
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     private List<Comment> comments;
 
     @Override

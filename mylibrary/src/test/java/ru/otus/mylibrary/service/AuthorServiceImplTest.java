@@ -73,11 +73,10 @@ class AuthorServiceImplTest {
 
         when(authorRepository.findAll()).thenReturn(list);
 
-        List<String> actList = service.getAllAuthors();
+        List<AuthorDto> actList = service.getAllAuthors();
 
         assertThat(actList).containsAll(Stream.of(author1, author2)
                 .map(dtoConverter::from)
-                .map(AuthorDto::toString)
                 .collect(Collectors.toList()));
     }
 }

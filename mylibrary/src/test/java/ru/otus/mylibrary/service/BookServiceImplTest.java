@@ -8,17 +8,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.mylibrary.domain.Author;
 import ru.otus.mylibrary.domain.Book;
+import ru.otus.mylibrary.domain.Comment;
 import ru.otus.mylibrary.domain.Genre;
-import ru.otus.mylibrary.dto.BookDto;
-import ru.otus.mylibrary.dto.DtoConverter;
+import ru.otus.mylibrary.dto.*;
 import ru.otus.mylibrary.dto.converters.BookDtoEntityConverterImpl;
+import ru.otus.mylibrary.dto.converters.CommentDtoEntityConverterImpl;
 import ru.otus.mylibrary.exception.BookServiceAddBookException;
 import ru.otus.mylibrary.exception.BookServiceRemoveBookException;
 import ru.otus.mylibrary.exception.BookServiceUpdateBookException;
+import ru.otus.mylibrary.repositories.AuthorRepository;
 import ru.otus.mylibrary.repositories.BookRepository;
+import ru.otus.mylibrary.repositories.GenreRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -30,12 +34,27 @@ class BookServiceImplTest {
     private BookService service;
     @Mock
     private BookRepository bookRepository;
+    @Mock
+    private AuthorRepository authorRepository;
+    @Mock
+    private GenreRepository genreRepository;
+    @Mock
+    private CommentService commentService;
 
-    private DtoConverter<BookDto, Book> dtoConverter = new BookDtoEntityConverterImpl();
+    @Mock
+    private AuthorService authorService;
+    @Mock
+    private GenreService genreService;
+
+    private DtoConverter<BookDto, Book> dtoConverter;
+    private DtoConverter<CommentDto, Comment> commentDtoConverter = new CommentDtoEntityConverterImpl();
 
     @BeforeEach
     void init() {
-        service = new BookServiceImpl(bookRepository, dtoConverter);
+        dtoConverter = new BookDtoEntityConverterImpl(authorService, genreService);
+        service = new BookServiceImpl(bookRepository, authorRepository, genreRepository, commentService,
+                dtoConverter, commentDtoConverter);
+
     }
 
     @Test
@@ -67,6 +86,7 @@ class BookServiceImplTest {
         Author author = new Author(1, "Маяковский В.В.");
         Genre genre = new Genre(1, "Проза");
         Book book = new Book(1, "Неоконченное", author, genre, new ArrayList<>());
+
         BookDto daoInsertedBookDto = dtoConverter.from(book);
 
         BookDto bookDto = BookDto.builder()
@@ -107,6 +127,12 @@ class BookServiceImplTest {
 
         when(bookRepository.existsById(book.getId())).thenReturn(true);
         when(bookRepository.save(any())).thenReturn(book);
+        when(authorService.findAuthorByName(author.getName())).thenReturn(
+                Optional.ofNullable(AuthorDto.builder().id(1).name("Маяковский В.В.").build())
+        );
+        when(genreService.findGenreByName("Проза")).thenReturn(
+                Optional.ofNullable(GenreDto.builder().id(1).name("Проза").build())
+        );
         BookDto savedBookDto = service.updateBook(actualBookDto);
 
         verify(bookRepository, times(1)).save(book);

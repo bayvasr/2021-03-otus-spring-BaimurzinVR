@@ -70,9 +70,9 @@ class GenreServiceImplTest {
 
         when(genreRepository.findAll()).thenReturn(list);
 
-        List<String> actualList = service.getAllGenres();
+        List<GenreDto> actualList = service.getAllGenres();
 
-        assertThat(actualList).containsAll(Stream.of(genre1, genre2).map(dtoConverter::from).map(GenreDto::toString).collect(Collectors.toList()));
+        assertThat(actualList).containsAll(Stream.of(genre1, genre2).map(dtoConverter::from).collect(Collectors.toList()));
     }
 
 }
