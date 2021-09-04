@@ -1,15 +1,13 @@
 package ru.otus.mylibrary.dto;
 
-import ru.otus.mylibrary.domain.Genre;
+import lombok.Builder;
+import lombok.Data;
 
+@Data
+@Builder
 public class GenreDto {
-    private final long id;
-    private final String name;
-
-    public GenreDto(Genre genre) {
-        this.id = genre.getId();
-        this.name = genre.getName();
-    }
+    private long id;
+    private String name;
 
     @Override
     public String toString() {

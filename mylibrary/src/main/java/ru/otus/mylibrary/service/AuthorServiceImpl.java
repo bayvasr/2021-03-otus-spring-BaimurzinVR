@@ -2,9 +2,11 @@ package ru.otus.mylibrary.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.otus.mylibrary.dao.AuthorDao;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.mylibrary.domain.Author;
 import ru.otus.mylibrary.dto.AuthorDto;
+import ru.otus.mylibrary.dto.DtoConverter;
+import ru.otus.mylibrary.repositories.AuthorRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,16 +14,21 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
-    private final AuthorDao dao;
+    private final AuthorRepository authorRepository;
+    private final DtoConverter<AuthorDto, Author> dtoConverter;
 
     @Override
-    public Author saveAuthor(Author author) {
-        return dao.find(author)
-                .orElseGet(() -> dao.insert(author));
+    @Transactional
+    public AuthorDto saveAuthor(AuthorDto author) {
+        return dtoConverter.from(authorRepository.save(dtoConverter.to(author)));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllAuthors() {
-        return dao.getAll().stream().map(AuthorDto::new).map(AuthorDto::toString).collect(Collectors.toList());
+        return authorRepository.findAll().stream()
+                .map(dtoConverter::from)
+                .map(AuthorDto::toString)
+                .collect(Collectors.toList());
     }
 }
